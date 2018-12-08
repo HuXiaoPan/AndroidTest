@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             outStream = openFileOutput("data", Context.MODE_APPEND);
             writer = new BufferedWriter(new OutputStreamWriter(outStream));
-            writer.write(inputText + '\n');
+            writer.write(inputText + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         } finally { //无论try中代码如何finally的代码都会被执行

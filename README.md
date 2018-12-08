@@ -12,3 +12,6 @@ learn android
 
 # V2018120801
 第六章文件存取完成
+
+# V2018120802
+第六章SharedPreference完成，第二次提交，回家了，下一小节SQLite数据库！
