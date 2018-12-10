@@ -15,3 +15,6 @@ learn android
 
 # V2018120802
 第六章SharedPreference完成，第二次提交，回家了，下一小节SQLite数据库！
+
+# V2018121001
+第六章SharedPreference完成,添加了SharedPreferencesTest.
