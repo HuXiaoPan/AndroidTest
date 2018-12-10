@@ -18,3 +18,6 @@ learn android
 
 # V2018121001
 第六章SharedPreference完成,添加了SharedPreferencesTest.
+
+# V2018121002
+开始测试SQLite.
