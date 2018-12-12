@@ -4,8 +4,12 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.util.Log;
+import android.widget.Switch;
+import android.widget.Toast;
 
 public class DatabaseProvider extends ContentProvider {
 
@@ -20,49 +24,169 @@ public class DatabaseProvider extends ContentProvider {
 
     static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(AUTHORITY,"book",BOOK_DIR);
-        uriMatcher.addURI(AUTHORITY,"book/#",BOOK_ITEM);
-        uriMatcher.addURI(AUTHORITY,"category",CATEGORY_DIR);
-        uriMatcher.addURI(AUTHORITY,"category/#",CATEGORY_ITEM);
+        uriMatcher.addURI(AUTHORITY, "book", BOOK_DIR);
+        uriMatcher.addURI(AUTHORITY, "book/#", BOOK_ITEM);
+        uriMatcher.addURI(AUTHORITY, "category", CATEGORY_DIR);
+        uriMatcher.addURI(AUTHORITY, "category/#", CATEGORY_ITEM);
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int deletedRows = 0;
+        switch (uriMatcher.match(uri)) {
+            case BOOK_DIR:
+                deletedRows = db.delete("Book", selection, selectionArgs);
+                break;
+            case BOOK_ITEM:
+                String bookId = uri.getPathSegments().get(1);
+                deletedRows = db.delete("Book", "id=?", new String[]{bookId});
+                break;
+            case CATEGORY_DIR:
+                deletedRows = db.delete("Category", selection, selectionArgs);
+                break;
+            case CATEGORY_ITEM:
+                String categoryId = uri.getPathSegments().get(1);
+                deletedRows = db.delete("Category", "id=?", new String[]{categoryId});
+                break;
+            default:
+                break;
+        }
+        return deletedRows;
     }
 
     @Override
     public String getType(Uri uri) {
         // TODO: Implement this to handle requests for the MIME type of the data
         // at the given URI.
-        throw new UnsupportedOperationException("Not yet implemented");
+        switch (uriMatcher.match(uri)) {
+            case BOOK_DIR:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + ".book";
+            case BOOK_ITEM:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + ".book";
+            case CATEGORY_DIR:
+                return "vnd.android.cursor.dir/vnd." + AUTHORITY + ".category";
+            case CATEGORY_ITEM:
+                return "vnd.android.cursor.item/vnd." + AUTHORITY + ".category";
+            default:
+                break;
+        }
+        return null;
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO: Implement this to handle requests to insert a new row.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Uri uriReturn = null;
+        switch (uriMatcher.match(uri)) {
+            case BOOK_DIR:
+            case BOOK_ITEM:
+                long newBookId = db.insert("Book", null, values);
+                uriReturn = Uri.parse("content://" + AUTHORITY + "/Book/" + newBookId);
+                break;
+            case CATEGORY_DIR:
+            case CATEGORY_ITEM:
+                long newCategoryId = db.insert("Category", null, values);
+                uriReturn = Uri.parse("content://" + AUTHORITY + "/Book/" + newCategoryId);
+                break;
+            default:
+                break;
+        }
+        return uriReturn;
     }
 
     @Override
     public boolean onCreate() {
         // TODO: Implement this to initialize your content provider on startup.
-        dbHelper = new MyDatabaseHelper(getContext(),"BookStore.db",null,2);
+        dbHelper = new MyDatabaseHelper(getContext(), "BookStore.db", null, 1);
         return true;
     }
-
+//Bug,突然就没了，我到底在改什么？？WTF
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
         // TODO: Implement this to handle query requests from clients.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+
+        switch (uriMatcher.match(uri)) {
+            case BOOK_DIR:
+                cursor = db.query("Book", projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case BOOK_ITEM:
+                String bookId = uri.getPathSegments().get(1);
+                cursor = db.query("Book", projection, "id=?", new String[]{bookId}, null, null, sortOrder);
+                break;
+
+            case CATEGORY_DIR:
+                cursor = db.query("Category", projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case CATEGORY_ITEM:
+                String categoryId = uri.getPathSegments().get(1);
+                cursor = db.query("Category", projection, "id=?", new String[]{categoryId}, null, null, sortOrder);
+                break;
+            default:
+                break;
+        }
+
+//        switch (uriMatcher.match(uri)) {
+//            case BOOK_DIR:
+//                cursor = db.query("Book", projection, selection, selectionArgs, null, null, sortOrder);
+//                break;
+//            case BOOK_ITEM:
+//                String bookId = uri.getPathSegments().get(1);
+//                cursor = db.query("Book", projection, "id=?", new String[]{bookId}, null, null, sortOrder);
+//                break;
+//            case CATEGORY_DIR:
+//                cursor = db.query("Category", projection, selection, selectionArgs, null, null, sortOrder);
+//                break;
+//            case CATEGORY_ITEM:
+//                String categoryId = uri.getPathSegments().get(1);
+//                cursor = db.query("Category", projection, "id=?", new String[]{categoryId}, null, null, sortOrder);
+//                break;
+//            default:
+//                break;
+//        }
+
+//        if (uriMatcher.match(uri)==BOOK_DIR) {
+//            cursor = db.query("Book", projection, selection, selectionArgs, null, null, sortOrder);
+//        } else {
+//            Log.d("tag111", "就是查不到啊就是查不到");
+//        }
+        Log.d("tag111", "==================================================================================");
+        return cursor;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int updatedRow = 0;
+        switch (uriMatcher.match(uri)) {
+            case BOOK_DIR:
+                updatedRow = db.update("Book", values, selection, selectionArgs);
+                break;
+            case BOOK_ITEM:
+                String bookId = uri.getPathSegments().get(1);
+                updatedRow = db.update("Book", values, "id=?", new String[]{bookId});
+                break;
+            case CATEGORY_DIR:
+                updatedRow = db.update("Category", values, selection, selectionArgs);
+                break;
+            case CATEGORY_ITEM:
+                String categoryId = uri.getPathSegments().get(1);
+                updatedRow = db.update("Category", values, "id=?", new String[]{categoryId});
+                break;
+            default:
+                break;
+        }
+        return updatedRow;
     }
 }
