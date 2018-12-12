@@ -1,12 +1,25 @@
 package com.example.admin.litepaltest;
 
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
+
 //use generate produce setter and getter;
-public class Book {
+public class Book extends LitePalSupport {
     private int id;
     private String author;
     private double price;
     private int pages;
     private String name;
+
+    private String press;
+
+    public String getPress() {
+        return press;
+    }
+
+    public void setPress(String press) {
+        this.press = press;
+    }
 
     public int getId() {
         return id;
