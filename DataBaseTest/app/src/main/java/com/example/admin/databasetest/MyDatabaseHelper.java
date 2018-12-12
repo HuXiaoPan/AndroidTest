@@ -41,7 +41,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_BOOK);
         db.execSQL(CREATE_CATEGORY);
-        db.execSQL(CREATE_TESTTABLE);
 
     }
 
@@ -49,8 +48,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE if EXISTS book");
         db.execSQL("DROP TABLE if EXISTS category");
-        db.execSQL("DROP TABLE if EXISTS testtable");
         onCreate(db);
-        Toast.makeText(mContext, "升级数据库完成", Toast.LENGTH_LONG).show();
+//        Toast.makeText(mContext, "升级数据库完成", Toast.LENGTH_LONG).show();
     }
 }
